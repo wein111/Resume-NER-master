@@ -1,8 +1,10 @@
+#Python==3.9
 Flask==1.1.2
-numpy==1.18.4
-pdfminer.six==20200517
-seqeval==0.0.12
-torch==1.5.1
+numpy==1.21.6
+pdfminer.six==20231228
+seqeval==1.2.2
+torch==1.10.2
 tqdm==4.46.0
-transformers==3.0.2
+transformers==4.17.0
 scikit-learn==0.24.1
+itsdangerous==2.0.1

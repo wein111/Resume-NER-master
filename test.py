@@ -7,8 +7,19 @@ from transformers import BertTokenizerFast, BertForTokenClassification
 MODEL_PATH = "model-state.bin"  # 替换成你的 model-state.bin 路径
 DEVICE = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
-tags_vals = ["UNKNOWN", "O", "Name", "Degree", "Skills", "College Name", "Email Address",
-             "Designation", "Companies worked at", "Graduation Year", "Years of Experience", "Location"]
+tags_vals = [
+    "O",
+    "B-Name", "I-Name",
+    "B-Degree", "I-Degree",
+    "B-Skills", "I-Skills",
+    "B-College Name", "I-College Name",
+    "B-Email Address", "I-Email Address",
+    "B-Designation", "I-Designation",
+    "B-Companies worked at", "I-Companies worked at",
+    "B-Graduation Year", "I-Graduation Year",
+    "B-Years of Experience", "I-Years of Experience",
+    "B-Location", "I-Location"
+]
 
 tag2idx = {tag: i for i, tag in enumerate(tags_vals)}
 idx2tag = {i: tag for i, tag in enumerate(tags_vals)}
@@ -72,8 +83,11 @@ def ner_predict(text):
 # --------------------------
 # 测试例子
 # --------------------------
-text = "John Doe graduated from MIT in 2020 and works at Google as a Software Engineer."
-prediction = ner_predict(text)
+#text = "John Doe graduated from MIT in 2020 and works at Google as a Software Engineer."
+#text = "Abhishek Jha\nApplication Development Associate - Accenture\n\nBengaluru, Karnataka - Email me on Indeed: indeed.com/r/Abhishek-Jha/10e7a8cb732bc43a\n\n• To work for an organization which provides me the opportunity to improve my skills\nand knowledge for my individual and company's growth in best possible ways.\n\nWilling to relocate to: Bangalore, Karnataka\n\nWORK EXPERIENCE\n\nApplication Development Associate\n\nAccenture -\n\nNovember 2017 to Present\n\nRole: Currently working on Chat-bot. Developing Backend Oracle PeopleSoft Queries\nfor the Bot which will be triggered based on given input. Also, Training the bot for different possible\nutterances (Both positive and negative), which will be given as\ninput by the user.\n\nEDUCATION\n\nB.E in Information science and engineering\n\nB.v.b college of engineering and technology -  Hubli, Karnataka\n\nAugust 2013 to June 2017\n\n12th in Mathematics\n\nWoodbine modern school\n\nApril 2011 to March 2013\n\n10th\n\nKendriya Vidyalaya\n\nApril 2001 to March 2011\n\nSKILLS\n\nC (Less than 1 year), Database (Less than 1 year), Database Management (Less than 1 year),\nDatabase Management System (Less than 1 year), Java (Less than 1 year)\n\nADDITIONAL INFORMATION\n\nTechnical Skills\n\nhttps://www.indeed.com/r/Abhishek-Jha/10e7a8cb732bc43a?isid=rex-download&ikw=download-top&co=IN\n\n\n• Programming language: C, C++, Java\n• Oracle PeopleSoft\n• Internet Of Things\n• Machine Learning\n• Database Management System\n• Computer Networks\n• Operating System worked on: Linux, Windows, Mac\n\nNon - Technical Skills\n\n• Honest and Hard-Working\n• Tolerant and Flexible to Different Situations\n• Polite and Calm\n• Team-Player"
+text = "Sarah Chen has worked at Microsoft and Amazon as a Product Manager for 3 years, using python, SQL, word and powerpoint."
+text2 = "John Doe graduated from Stanford University and works at Google"
+prediction = ner_predict(text2)
 
 for token, tag in prediction:
     print(f"{token}\t{tag}")

@@ -34,12 +34,24 @@ def tokenize_resume(text, tokenizer, max_len):
     return final_data
 
 
-tags_vals = ["UNKNOWN", "O", "Name", "Degree", "Skills", "College Name", "Email Address",
-             "Designation", "Companies worked at", "Graduation Year", "Years of Experience", "Location"]
+
+tags_vals = [
+    "O",
+    "B-Name", "I-Name",
+    "B-Degree", "I-Degree",
+    "B-Skills", "I-Skills",
+    "B-College Name", "I-College Name",
+    "B-Email Address", "I-Email Address",
+    "B-Designation", "I-Designation",
+    "B-Companies worked at", "I-Companies worked at",
+    "B-Graduation Year", "I-Graduation Year",
+    "B-Years of Experience", "I-Years of Experience",
+    "B-Location", "I-Location"
+]
 idx2tag = {i: t for i, t in enumerate(tags_vals)}
-resticted_lables = ["UNKNOWN", "O", "Email Address"]
+resticted_lables = [ "O", "B-Email Address", "I-Email Address"]
 
-
+"""""
 def predict(model, tokenizer, idx2tag, device, test_resume, max_len):
     model.eval()
     data = tokenize_resume(test_resume, tokenizer, max_len)
@@ -57,7 +69,7 @@ def predict(model, tokenizer, idx2tag, device, test_resume, max_len):
             input_ids,
             token_type_ids=None,
             attention_mask=input_mask,
-            labels=labels,
+            #labels=labels,
         )
         tmp_eval_loss, logits = outputs[:2]
 
@@ -77,4 +89,37 @@ def predict(model, tokenizer, idx2tag, device, test_resume, max_len):
                     {'entity': curr_id, 'start': curr_start, 'end': curr_end})
     for ent in entities:
         ent['text'] = test_resume[ent['start']:ent['end']]
+    return entities
+"""""
+def predict(model, tokenizer, idx2tag, device, test_resume, max_len):
+    model.eval()
+    data = tokenize_resume(test_resume, tokenizer, max_len)
+
+    input_ids = data['input_ids'].unsqueeze(0).to(device)
+    input_mask = data['attention_mask'].unsqueeze(0).to(device)
+
+    with torch.no_grad():
+        outputs = model(
+            input_ids,
+            token_type_ids=None,
+            attention_mask=input_mask,
+        )
+
+    logits = outputs.logits  # 直接取 logits
+    logits = logits.cpu().detach().numpy()
+    label_ids = np.argmax(logits, axis=2)
+
+    entities = []
+    for label_id, offset in zip(label_ids[0], data['offset_mapping']):
+        curr_id = idx2tag[label_id]
+        curr_start, curr_end = offset
+        if curr_id not in resticted_lables:
+            if len(entities) > 0 and entities[-1]['entity'] == curr_id and curr_start - entities[-1]['end'] in [0, 1]:
+                entities[-1]['end'] = curr_end
+            else:
+                entities.append({'entity': curr_id, 'start': curr_start, 'end': curr_end})
+
+    for ent in entities:
+        ent['text'] = test_resume[ent['start']:ent['end']]
+
     return entities

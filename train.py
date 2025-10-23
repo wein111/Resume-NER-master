@@ -4,6 +4,7 @@ import torch
 from transformers import BertForTokenClassification, BertTokenizerFast
 from torch.utils.data import Dataset, DataLoader, RandomSampler, SequentialSampler
 from torch.optim import Adam
+from transformers import AdamW
 from utils import trim_entity_spans, convert_goldparse, ResumeDataset, tag2idx, idx2tag, get_hyperparameters, train_and_val_model
 
 
@@ -18,7 +19,7 @@ output_path = args['o']
 
 MAX_LEN = 500
 #EPOCHS = args['e']
-EPOCHS = 1
+EPOCHS = 5
 MAX_GRAD_NORM = 1.0
 MODEL_NAME = 'bert-base-uncased'
 TOKENIZER = BertTokenizerFast('./vocab/vocab.txt', lowercase=True)
@@ -41,7 +42,8 @@ model = BertForTokenClassification.from_pretrained(
     MODEL_NAME, num_labels=len(tag2idx))
 model.to(DEVICE)
 optimizer_grouped_parameters = get_hyperparameters(model, True)
-optimizer = Adam(optimizer_grouped_parameters, lr=3e-5)
+#optimizer = Adam(optimizer_grouped_parameters, lr=5e-5)
+optimizer = AdamW(model.parameters(), lr=5e-5, eps=1e-8)
 
 
 
