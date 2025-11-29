@@ -25,8 +25,15 @@ optional arguments:
 # Get output with Normalizer
 
 cd root dir Resume-NER-master
+
 put resume(s) into "input" file
-run python batch_infer.py
+
+run 
+
+```bash
+python batch_infer.py
+```
+
 get result(s) in "output" file
 
 
